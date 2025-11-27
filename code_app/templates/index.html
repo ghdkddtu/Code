@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if show_login %}Вход в систему{% else %}Генератор паролей{% endif %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="header">
+        <h1 class="header__title">
+            {% if show_login %}Вход в систему{% else %}Генератор паролей{% endif %}
+        </h1>
+
+        {% if not show_login %}
+        <div class="user-info">
+            Вы вошли как: <strong>{{ user.name }}</strong> ({{ user.role }})
+            <a href="{{ url_for('logout') }}" class="logout-link">Выйти</a>
+        </div>
+        {% endif %}
+    </header>
+
+    <main class="main">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% if show_login %}
+
+        <article class="login-form">
+            <h2 class="login__title">Авторизация</h2>
+
+            <form method="POST" class="generator__form">
+                <div class="form__group">
+                    <label for="username" class="form__label">Имя пользователя:</label>
+                    <input type="text" id="username" name="username" class="form__input" required>
+                </div>
+
+                <div class="form__group">
+                    <label for="password" class="form__label">Пароль:</label>
+                    <input type="password" id="password" name="password" class="form__input" required>
+                </div>
+
+                <div class="form__group">
+                    <label class="option__label">
+                        <input type="checkbox" name="remember" id="remember" class="option__checkbox">
+                        <span class="option__text">Запомнить меня</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="form__button">
+                    Войти
+                </button>
+            </form>
+
+            <div class="test-users">
+                <h3 class="test-users__title">Тестовые пользователи:</h3>
+                <ul class="test-users__list">
+                    <li><strong>admin</strong> / <strong>admin123</strong> (администратор)</li>
+                    <li><strong>user1</strong> / <strong>user123</strong> (пользователь)</li>
+                    <li><strong>user2</strong> / <strong>user123</strong> (пользователь)</li>
+                </ul>
+            </div>
+        </article>
+
+        {% else %}
+
+        <article class="generator">
+            <h2 class="generator__title">Создайте пароль</h2>
+
+            <form method="POST" class="generator__form">
+                <label for="password_length" class="form__label">
+                    Длина пароля: <span class="length-value">{{ request.form.length or '12' }}</span>
+                </label>
+                <input type="range" id="password_length" name="length" class="form__range"
+                       min="6" max="32" value="{{ request.form.length or '12' }}"
+                       oninput="document.querySelector('.length-value').textContent = this.value">
+
+                <button type="submit" class="form__button">
+                    Создать пароль
+                </button>
+            </form>
+        </article>
+
+        {% if password %}
+        <article class="result">
+            <h3 class="result__title">Ваш пароль:</h3>
+            <p class="result__output">{{ password }}</p>
+        </article>
+        {% endif %}
+        {% endif %}
+    </main>
+
+    <footer class="footer">
+        <p class="footer__text">&copy; Генератор паролей</p>
+    </footer>
+</body>
+</html>
